@@ -506,6 +506,26 @@ const config: ControlPanelConfig = {
               width: 400,
               height: 320,
               renderTrigger: true,
+              controlOverrides: {
+                chartType: {
+                  type: 'SelectControl',
+                  label: t('Chart Type'),
+                  default: 'default',
+                  choices: [
+                    ['default', t('Default (Text/Numbers)')],
+                    ['sparkline', t('Sparkline Chart')],
+                    ['histogram', t('Histogram')],
+                    ['minibar', t('Mini Bar Chart')],
+                    ['horizontal-bar', t('Horizontal Bars')],
+                  ],
+                  description: t('Select chart type for this column'),
+                },
+                chartConfig: {
+                  type: 'JsonControl',
+                  label: t('Chart Settings'),
+                  description: t('Chart-specific configuration (width, height, etc.)'),
+                },
+              },
               shouldMapStateToProps() {
                 return true;
               },

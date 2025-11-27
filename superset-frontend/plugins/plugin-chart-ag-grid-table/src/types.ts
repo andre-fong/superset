@@ -60,6 +60,21 @@ export type TableColumnConfig = {
   visible?: boolean;
   customColumnName?: string;
   displayTypeIcon?: boolean;
+  chartType?: 'sparkline' | 'histogram' | 'minibar' | 'horizontal-bar' | 'default';
+  chartConfig?: {
+    width?: number;
+    height?: number;
+    color?: string;
+    strokeWidth?: number;
+    bins?: number;
+    showPoints?: boolean;
+    showValues?: boolean;
+    interpolation?: string;
+    showDensity?: boolean;
+    maxBars?: number;
+    orientation?: 'vertical' | 'horizontal';
+    valuePosition?: 'left' | 'right' | 'top' | 'bottom';
+  };
 };
 
 export interface DataColumnMeta {

@@ -440,6 +440,56 @@ const processColumns = memoizeOne(function processColumns(
   ];
 }, isEqualColumns);
 
+const processChartConfiguration = memoizeOne(function processChartConfiguration(
+  columnConfig: Record<string, TableColumnConfig>,
+  columns: DataColumnMeta[],
+) {
+  const chartColumnConfig: Record<string, TableColumnConfig> = {};
+  
+  columns.forEach(column => {
+    const config = columnConfig[column.key] || {};
+    
+    if (config.chartType && config.chartType !== 'default') {
+      // Validate and set defaults for chart configuration
+      chartColumnConfig[column.key] = {
+        ...config,
+        chartType: config.chartType,
+        chartConfig: {
+          // Set chart-specific defaults
+          width: config.chartConfig?.width ?? 60,
+          height: config.chartConfig?.height ?? 20,
+          color: config.chartConfig?.color,
+          strokeWidth: config.chartConfig?.strokeWidth ?? 1.5,
+          
+          // Chart type specific defaults
+          ...(config.chartType === 'sparkline' && {
+            showPoints: config.chartConfig?.showPoints ?? false,
+            interpolation: config.chartConfig?.interpolation ?? 'linear',
+          }),
+          ...(config.chartType === 'histogram' && {
+            bins: config.chartConfig?.bins ?? 8,
+            showDensity: config.chartConfig?.showDensity ?? false,
+          }),
+          ...(config.chartType === 'minibar' && {
+            maxBars: config.chartConfig?.maxBars ?? 5,
+            orientation: config.chartConfig?.orientation ?? 'vertical',
+          }),
+          
+          // Universal options
+          showValues: config.chartConfig?.showValues ?? true,
+          valuePosition: config.chartConfig?.valuePosition ?? 'right',
+          ...config.chartConfig,
+        },
+      };
+    } else {
+      // Keep existing configuration for non-chart columns
+      chartColumnConfig[column.key] = config;
+    }
+  });
+  
+  return chartColumnConfig;
+});
+
 /**
  * Automatically set page size based on number of cells.
  */
@@ -683,7 +733,16 @@ const transformProps = (
   );
 
   const passedData = isUsingTimeComparison ? comparisonData || [] : data;
-  const passedColumns = isUsingTimeComparison ? comparisonColumns : columns;
+  let passedColumns = isUsingTimeComparison ? comparisonColumns : columns;
+
+  // Apply processed chart configuration
+  const { column_config: columnConfig = {} } = formData;
+  const processedColumnConfig = processChartConfiguration(columnConfig, passedColumns);
+  
+  passedColumns = passedColumns.map(col => ({
+    ...col,
+    config: processedColumnConfig[col.key] || col.config,
+  }));
 
   const basicColorFormatters =
     comparisonColorEnabled && getBasicColorFormatter(baseQuery?.data, columns);

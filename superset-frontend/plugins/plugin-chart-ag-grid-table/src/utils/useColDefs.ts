@@ -37,6 +37,10 @@ import { NumericCellRenderer } from '../renderers/NumericCellRenderer';
 import CustomHeader from '../AgGridTable/components/CustomHeader';
 import { valueFormatter, valueGetter } from './formatValue';
 import getCellStyle from './getCellStyle';
+import {
+  getChartRenderer,
+  shouldUseChartRenderer,
+} from './chartRenderers';
 
 interface InputData {
   [key: string]: any;
@@ -239,8 +243,13 @@ export const useColDefs = ({
             'last',
           ],
         }),
-        cellRenderer: (p: CellRendererProps) =>
-          isTextColumn ? TextCellRenderer(p) : NumericCellRenderer(p),
+        cellRenderer: (p: CellRendererProps) => {
+          if (shouldUseChartRenderer(col)) {
+            const Renderer = getChartRenderer(col.config?.chartType);
+            return Renderer ? Renderer(p) : NumericCellRenderer(p);
+          }
+          return isTextColumn ? TextCellRenderer(p) : NumericCellRenderer(p);
+        },
         cellRendererParams: {
           allowRenderHtml: true,
           columns,
