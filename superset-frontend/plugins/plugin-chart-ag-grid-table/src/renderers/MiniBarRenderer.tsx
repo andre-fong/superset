@@ -16,7 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
+import React, { ReactElement } from 'react';
+import { CellRendererProps } from '../types';
+// @ts-ignore
+import SparklineCell from '../../../../src/visualizations/TimeTable/components/SparklineCell';
+
 export const MiniBarRenderer = (params: CellRendererProps): ReactElement | null => {
   const { value, colDef } = params;
   
